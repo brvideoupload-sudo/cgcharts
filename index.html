@@ -3,242 +3,217 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes, viewport-fit=cover">
-<title>Preflop Charts</title>
+<title>Preflop Chart Viewer</title>
 <link rel="manifest" href="./manifest.webmanifest">
-<meta name="theme-color" content="#14161A">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="./icon.svg">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <style>
 :root{
-  --bg:#14161A;
-  --panel:#1B1F26;
-  --panel-2:#222732;
-  --edge:#2C333E;
-  --text:#E7EAEF;
-  --muted:#868F9D;
-  --brass:#C9A227;
-  --steel:#4C8DAE;
-  --felt:#1A2A24;
-  --r:14px;
-  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
-  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --red:#E8503A;
+  --red-dark:#C63E29;
+  --bar:#4A4543;
+  --bar-hover:#5A5451;
+  --ink:#33302E;
+  --rule:#E2DEDA;
+  --serif:Georgia,"Times New Roman",Times,serif;
+  --sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%}
+html,body{margin:0}
 body{
-  background:var(--bg);color:var(--text);font-family:var(--sans);
-  overscroll-behavior:none;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background:#fff;color:var(--ink);font-family:var(--sans);
+  padding:0 0 60px;
+  -webkit-text-size-adjust:100%;
 }
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:4px}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 
-/* ---------- shell ---------- */
-.app{display:grid;grid-template-columns:352px 1fr;height:100vh;height:100dvh}
-.rail{
-  background:var(--panel);border-right:1px solid var(--edge);
-  display:flex;flex-direction:column;min-height:0;
-}
-.stage{display:flex;flex-direction:column;min-width:0;min-height:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
 
-/* ---------- rail head ---------- */
-.brand{
-  padding:18px 20px 14px;border-bottom:1px solid var(--edge);
-  display:flex;align-items:baseline;gap:10px;
+/* ---------- masthead ---------- */
+.mast{padding:38px 0 6px;display:flex;align-items:center;gap:26px}
+.mast .rule{flex:1;height:3px;background:var(--red)}
+.mast h1{
+  margin:0;font-family:var(--serif);font-weight:400;
+  font-size:34px;color:var(--red);white-space:nowrap;letter-spacing:.01em;
 }
-.brand b{font-size:15px;font-weight:650;letter-spacing:.02em}
-.brand span{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.sub{text-align:center;color:#8B8480;font-size:13px;margin:12px 0 0}
 
-/* ---------- table ---------- */
-.tablewrap{padding:20px 20px 6px}
-.tablecap{
-  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--muted);margin:0 0 12px;
+/* ---------- legend ---------- */
+.legend{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:10px 26px;
+  padding:26px 0 34px;
 }
-.felt{
-  position:relative;aspect-ratio:1/.72;border-radius:999px;
-  background:radial-gradient(120% 140% at 50% 8%,#22362E 0%,var(--felt) 62%,#141F1B 100%);
-  border:1px solid #2E4139;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 8px 24px rgba(0,0,0,.35);
-}
-.seat{
-  position:absolute;transform:translate(-50%,-50%);
-  width:60px;height:42px;border-radius:11px;
-  background:var(--panel-2);border:1px solid var(--edge);
-  font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;
-  color:var(--muted);
-  display:grid;place-items:center;
-  transition:transform .16s ease,background .16s ease,color .16s ease,border-color .16s ease;
-}
-.seat:hover{color:var(--text);border-color:#3C4552}
-.seat.on{
-  background:var(--brass);border-color:var(--brass);color:#171308;
-  transform:translate(-50%,-50%) scale(1.06);
-  box-shadow:0 4px 14px rgba(201,162,39,.3);
-}
-.seat.vs{background:var(--steel);border-color:var(--steel);color:#08181F}
-.seat[data-p="UTG"]{left:24%;top:9%}
-.seat[data-p="MP"] {left:76%;top:9%}
-.seat[data-p="CO"] {left:93%;top:50%}
-.seat[data-p="BU"] {left:76%;top:91%}
-.seat[data-p="SB"] {left:24%;top:91%}
-.seat[data-p="BB"] {left:7%;top:50%}
-.dealer{
-  position:absolute;left:59%;top:80%;transform:translate(-50%,-50%);
-  width:19px;height:19px;border-radius:50%;
-  background:#EFEFEA;color:#1A1A1A;
-  font-family:var(--mono);font-size:10px;font-weight:700;
-  display:grid;place-items:center;
-  box-shadow:0 2px 6px rgba(0,0,0,.45);
-  pointer-events:none;
-}
+.legend span{display:flex;align-items:center;gap:8px;font-size:13px;color:#5E5854}
+.legend i{width:15px;height:15px;border-radius:3px;display:block;border:1px solid rgba(0,0,0,.15)}
 
-/* ---------- spot list ---------- */
-.spots{flex:1;overflow-y:auto;padding:10px 20px 28px;-webkit-overflow-scrolling:touch}
-.grouptitle{
-  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--muted);margin:20px 0 9px;
-  display:flex;align-items:center;gap:10px;
-}
-.grouptitle::after{content:"";flex:1;height:1px;background:var(--edge)}
-.chips{display:flex;flex-wrap:wrap;gap:7px}
-.chip{
-  padding:9px 13px;border-radius:10px;
-  background:var(--panel-2);border:1px solid var(--edge);
-  font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--text);
-  transition:background .14s ease,border-color .14s ease,color .14s ease;
-}
-.chip:hover{border-color:#3C4552}
-.chip.on{background:var(--brass);border-color:var(--brass);color:#171308;font-weight:600}
-.chip.wide{width:100%;text-align:left}
-.empty{color:var(--muted);font-size:13px;line-height:1.5;padding:24px 0}
+/* ---------- accordion ---------- */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 34px;align-items:start}
+.col{display:flex;flex-direction:column}
 
-/* ---------- stage ---------- */
-.stagehead{
-  padding:22px 28px 16px;border-bottom:1px solid var(--edge);
-  display:flex;align-items:flex-start;gap:16px;
+.sec{margin:0 0 14px}
+.secbtn{
+  width:100%;display:flex;align-items:center;gap:14px;
+  padding:19px 22px;background:var(--bar);color:#F4F1EF;
+  font-size:19px;font-weight:700;text-align:left;letter-spacing:.01em;
+  transition:background .15s ease;
 }
-.back{display:none;font-size:22px;line-height:1;padding:4px 10px 8px;margin:-4px 0 0 -10px;color:var(--muted)}
-.titles{min-width:0;flex:1}
-h1{margin:0;font-size:21px;font-weight:640;letter-spacing:-.01em}
-.situation{margin:6px 0 0;font-size:13px;color:var(--muted);line-height:1.45}
-.fav{font-size:19px;line-height:1;padding:6px;color:var(--muted);transition:color .14s ease}
-.fav.on{color:var(--brass)}
+.secbtn:hover{background:var(--bar-hover)}
+.secbtn .arw{
+  font-size:13px;line-height:1;color:#C7C1BE;
+  transition:transform .2s ease;flex:none;width:14px;
+}
+.sec.open .secbtn .arw{transform:rotate(90deg)}
 
-.chartbox{
-  flex:1;min-height:0;position:relative;
-  display:grid;place-items:center;padding:22px 28px 26px;
+.panel{display:none;border:1px solid var(--rule);border-top:0;padding:8px 0 18px}
+.sec.open .panel{display:block}
+
+.grp{margin:0}
+.grph{
+  font-size:16px;color:var(--red);font-weight:400;
+  padding:12px 0 4px 30px;position:relative;margin:0;
 }
-.chart{
-  max-width:100%;max-height:100%;
-  border-radius:10px;border:1px solid var(--edge);
-  background:var(--panel);
-  transition:opacity .18s ease;
-  display:block;
+.grph::before{
+  content:"";position:absolute;left:16px;top:20px;
+  width:7px;height:7px;background:var(--red);
 }
-.chart.load{opacity:.25}
-.pager{
-  display:flex;align-items:center;justify-content:center;gap:18px;
-  padding:0 28px 20px;font-family:var(--mono);font-size:11px;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+.grp ul{list-style:none;margin:0;padding:0}
+.grp li{position:relative}
+.grp li::before{
+  content:"";position:absolute;left:38px;top:16px;
+  width:6px;height:6px;background:var(--red);
 }
-.pager button{padding:7px 14px;border:1px solid var(--edge);border-radius:9px;font-family:var(--mono);font-size:11px;letter-spacing:.1em}
-.pager button:disabled{opacity:.3;cursor:default}
-.blank{text-align:center;color:var(--muted);max-width:340px;line-height:1.6;font-size:14px}
-.blank b{display:block;color:var(--text);font-size:16px;font-weight:600;margin-bottom:8px}
+.grp li button{
+  display:block;width:100%;text-align:left;
+  padding:7px 20px 7px 54px;
+  color:var(--red);font-size:16px;
+  transition:background .12s ease,color .12s ease;
+}
+.grp li button:hover{background:#FCF2F0;color:var(--red-dark)}
+
+.flat{list-style:none;margin:0;padding:6px 0}
+.flat li{position:relative}
+.flat li::before{
+  content:"";position:absolute;left:20px;top:16px;
+  width:7px;height:7px;background:var(--red);
+}
+.flat li button{
+  display:block;width:100%;text-align:left;
+  padding:7px 20px 7px 38px;
+  color:var(--red);font-size:16px;
+  transition:background .12s ease,color .12s ease;
+}
+.flat li button:hover{background:#FCF2F0;color:var(--red-dark)}
 
 /* ---------- offline ---------- */
-.offline{padding:14px 20px;border-top:1px solid var(--edge)}
-.offline button{
-  width:100%;padding:10px;border:1px solid var(--edge);border-radius:10px;
-  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+.tools{text-align:center;padding:44px 0 0}
+.tools button{
+  border:1px solid var(--rule);border-radius:4px;
+  padding:11px 22px;font-size:13px;color:#6E6864;
+  transition:border-color .15s ease,color .15s ease;
 }
-.offline button:hover{color:var(--text);border-color:#3C4552}
-.offline button:disabled{cursor:default}
+.tools button:hover{border-color:#C9C3BE;color:var(--ink)}
+.tools button:disabled{cursor:default}
+
+/* ---------- lightbox ---------- */
+.lb{
+  position:fixed;inset:0;z-index:60;display:none;
+  background:rgba(26,23,22,.94);
+  flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.lb.on{display:flex}
+.lbhead{display:flex;align-items:center;gap:16px;padding:16px 20px;color:#F4F1EF;flex:none}
+.lbhead h2{margin:0;font-size:17px;font-weight:600;flex:1;min-width:0}
+.lbhead .idx{font-size:13px;color:#A69F9B;font-variant-numeric:tabular-nums}
+.lbhead button{font-size:26px;line-height:1;color:#A69F9B;padding:2px 8px}
+.lbhead button:hover{color:#fff}
+.lbbody{flex:1;min-height:0;display:grid;place-items:center;padding:0 16px 8px}
+.lbbody img{max-width:100%;max-height:100%;display:block;border-radius:6px;transition:opacity .16s ease}
+.lbbody img.load{opacity:.3}
+.lbnav{display:flex;justify-content:center;align-items:center;gap:12px;padding:12px 20px 20px;flex:none}
+.lbnav button{padding:9px 20px;border:1px solid #4A4543;border-radius:5px;color:#D8D3D0;font-size:14px}
+.lbnav button:hover:not(:disabled){background:#332F2D;color:#fff}
+.lbnav button:disabled{opacity:.35;cursor:default}
+.lberr{color:#E8A79A;font-size:14px;text-align:center;line-height:1.6;max-width:420px}
 
 /* ---------- narrow ---------- */
-@media (max-width:900px){
-  .app{grid-template-columns:1fr}
-  .rail{border-right:0}
-  .stage{
-    position:fixed;inset:0;background:var(--bg);z-index:20;
-    transform:translateX(100%);transition:transform .24s ease;
-  }
-  .stage.open{transform:none}
-  .back{display:block}
-  .stagehead{padding:16px 18px 14px;padding-top:calc(16px + env(safe-area-inset-top))}
-  .chartbox{padding:14px}
-  h1{font-size:18px}
+@media (max-width:820px){
+  .cols{grid-template-columns:1fr;gap:0}
+  .wrap{padding:0 16px}
+  .mast{padding:26px 0 4px;gap:14px}
+  .mast h1{font-size:26px}
+  .secbtn{padding:17px 18px;font-size:17px}
+  .legend{gap:8px 18px;padding:20px 0 26px}
 }
-@media (prefers-reduced-motion:reduce){
-  *{transition:none!important;animation:none!important}
-}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
-<div class="app">
-  <aside class="rail">
-    <div class="brand"><b>Preflop Charts</b><span>6-max</span></div>
+<div class="wrap">
+  <div class="mast">
+    <span class="rule"></span>
+    <h1>100 Big Blinds</h1>
+    <span class="rule"></span>
+  </div>
+  <p class="sub">6-max cash game preflop ranges</p>
 
-    <div class="tablewrap">
-      <p class="tablecap">Pick your seat</p>
-      <div class="felt" id="felt"><div class="dealer">D</div></div>
-    </div>
+  <div class="legend">
+    <span><i style="background:#F5761A"></i>Raise</span>
+    <span><i style="background:#5CD65C"></i>Call / Check</span>
+    <span><i style="background:#8E24C9"></i>All-In</span>
+    <span><i style="background:#2E9BD6"></i>Fold</span>
+    <span><i style="background:#26282C"></i>Not In Range</span>
+  </div>
 
-    <div class="spots" id="spots"></div>
+  <div class="cols" id="cols"></div>
 
-    <div class="offline">
-      <button id="dl">Save all charts for offline</button>
-    </div>
-  </aside>
+  <div class="tools">
+    <button id="dl">Save all charts for offline use</button>
+  </div>
+</div>
 
-  <main class="stage" id="stage">
-    <div class="stagehead">
-      <button class="back" id="back" aria-label="Back to spots">&larr;</button>
-      <div class="titles">
-        <h1 id="title">No spot selected</h1>
-        <p class="situation" id="situation">Choose a seat, then a spot.</p>
-      </div>
-      <button class="fav" id="fav" aria-label="Favourite this spot" hidden>&#9734;</button>
-    </div>
-
-    <div class="chartbox" id="chartbox">
-      <div class="blank" id="blank">
-        <b>Nothing open yet</b>
-        Tap a seat on the table, then choose the spot you're in. Swipe the chart sideways to move between spots.
-      </div>
-      <img class="chart" id="chart" alt="" hidden>
-    </div>
-
-    <div class="pager" id="pager" hidden>
-      <button id="prev">&larr; Prev</button>
-      <span id="count"></span>
-      <button id="next">Next &rarr;</button>
-    </div>
-  </main>
+<div class="lb" id="lb">
+  <div class="lbhead">
+    <h2 id="lbtitle"></h2>
+    <span class="idx" id="lbidx"></span>
+    <button id="lbclose" aria-label="Close">&times;</button>
+  </div>
+  <div class="lbbody">
+    <img id="lbimg" alt="">
+    <p class="lberr" id="lberr" hidden></p>
+  </div>
+  <div class="lbnav">
+    <button id="lbprev">&larr; Previous</button>
+    <button id="lbnext">Next &rarr;</button>
+  </div>
 </div>
 
 <script>
-/* ------------------------------------------------------------------
-   DATA
-   Positions in action order. To add a chart later, drop the PNG in
-   this folder and add the position to the right map below.
------------------------------------------------------------------- */
-const POS   = ["UTG","MP","CO","BU","SB","BB"];
-const NAME  = {UTG:"Under the Gun",MP:"Middle Position",CO:"Cutoff",BU:"Button",SB:"Small Blind",BB:"Big Blind"};
+/* ==================================================================
+   DATA — the four maps below are the whole configuration.
+   To add a chart: drop the PNG in this folder and add the position
+   to the matching map. Filenames are derived automatically.
+================================================================== */
+const NAME  = {UTG:"UTG", MP:"MP", CO:"CO", BU:"BTN", SB:"SB", BB:"BB"};
+const ORDER = ["UTG","MP","CO","BU","SB","BB"];
 
-const OPEN  = ["UTG","MP","CO","BU","SB"];
-const VS_OPEN = {
+const RFI = ["UTG","MP","CO","BU","SB"];
+
+/* hero : villains who opened before them */
+const VS_RFI = {
   MP:["UTG"], CO:["UTG","MP"], BU:["UTG","MP","CO"],
   SB:["UTG","MP","CO","BU"], BB:["UTG","MP","CO","BU","SB"]
 };
+/* hero opened : villains who 3-bet them */
 const VS_3BET = {
   UTG:["MP","CO","BU","SB","BB"], MP:["CO","BU","SB","BB"],
   CO:["BU","SB","BB"], BU:["SB","BB"], SB:["BB"]
 };
+/* hero 3-bet : villains who 4-bet them */
 const VS_4BET = {
   MP:["UTG"], CO:["UTG","MP"], BU:["UTG","MP","CO"],
   SB:["UTG","MP","CO","BU"], BB:["UTG","MP","CO","BU","SB"]
@@ -246,260 +221,243 @@ const VS_4BET = {
 
 const REMOTE = "https://raw.githubusercontent.com/brvideoupload-sudo/cgcharts/main/";
 
-/* build a flat spot list */
-const SPOTS = [];
-OPEN.forEach(h => SPOTS.push({
-  id:"open:"+h, hero:h, vs:null, kind:"open",
-  file:h+"_open.png",
-  title:NAME[h]+" \u2014 opening range",
-  situation:"Folded to you. You're first in."
-}));
-for (const h in VS_OPEN) VS_OPEN[h].forEach(v => SPOTS.push({
-  id:"vsopen:"+h+":"+v, hero:h, vs:v, kind:"vsopen",
-  file:h+"_VS_"+v+"_OPEN.png",
-  title:NAME[h]+" vs "+NAME[v]+" open",
-  situation:NAME[v]+" raised first in. Action on you."
-}));
-for (const h in VS_3BET) VS_3BET[h].forEach(v => SPOTS.push({
-  id:"3bet:"+h+":"+v, hero:h, vs:v, kind:"3bet",
-  file:h+"_VS_"+v+"_3BET.png",
-  title:NAME[h]+" vs "+NAME[v]+" 3-bet",
-  situation:"You raised first in. "+NAME[v]+" 3-bet. Action back on you."
-}));
-for (const h in VS_4BET) VS_4BET[h].forEach(v => SPOTS.push({
-  id:"4bet:"+h+":"+v, hero:h, vs:v, kind:"4bet",
-  file:h+"_VS_"+v+"_4BET.png",
-  title:NAME[h]+" vs "+NAME[v]+" 4-bet",
-  situation:NAME[v]+" raised, you 3-bet, "+NAME[v]+" 4-bet. Action back on you."
-}));
+/* invert a hero->villains map into villain->heroes */
+function byVillain(map){
+  const out = {};
+  ORDER.forEach(v => {
+    const heroes = ORDER.filter(h => (map[h] || []).includes(v));
+    if (heroes.length) out[v] = heroes;
+  });
+  return out;
+}
 
-const GROUPS = [
-  {kind:"open",   label:"Open"},
-  {kind:"vsopen", label:"Facing an open"},
-  {kind:"3bet",   label:"Facing a 3-bet"},
-  {kind:"4bet",   label:"Facing a 4-bet"}
+/* ==================================================================
+   SECTIONS
+================================================================== */
+const SECTIONS = [
+  {
+    id:"rfi", label:"RFI", col:0,
+    flat: RFI.map(p => ({
+      file:  p + "_open.png",
+      label: NAME[p] + " RFI",
+      title: NAME[p] + " raise first in"
+    }))
+  },
+  {
+    id:"vsrfi", label:"vs RFI", col:0,
+    groups: Object.entries(byVillain(VS_RFI)).map(([v, heroes]) => ({
+      head: "Vs " + NAME[v],
+      items: heroes.map(h => ({
+        file:  h + "_VS_" + v + "_OPEN.png",
+        label: NAME[h] + " vs " + NAME[v],
+        title: NAME[h] + " vs " + NAME[v] + " RFI"
+      }))
+    }))
+  },
+  {
+    id:"rfivs3bet", label:"RFI vs 3-Bet", col:1,
+    groups: Object.keys(VS_3BET).map(h => ({
+      head: NAME[h],
+      items: VS_3BET[h].map(v => ({
+        file:  h + "_VS_" + v + "_3BET.png",
+        label: "Vs " + NAME[v],
+        title: NAME[h] + " RFI vs " + NAME[v] + " 3-bet"
+      }))
+    }))
+  },
+  {
+    id:"vs4bet", label:"vs 4-Bet", col:1,
+    groups: Object.entries(byVillain(VS_4BET)).map(([v, heroes]) => ({
+      head: "Vs " + NAME[v] + " 4-Bet",
+      items: heroes.map(h => ({
+        file:  h + "_VS_" + v + "_4BET.png",
+        label: NAME[h],
+        title: NAME[h] + " vs " + NAME[v] + " 4-bet"
+      }))
+    }))
+  }
 ];
 
-/* ------------------------------------------------------------------
-   STORAGE (degrades to memory if unavailable)
------------------------------------------------------------------- */
-const mem = {};
-const store = {
-  get(k){ try{ return localStorage.getItem(k); }catch(e){ return k in mem ? mem[k] : null; } },
-  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } }
-};
-let favs = (() => { try{ return JSON.parse(store.get("favs")||"[]"); }catch(e){ return []; } })();
-const saveFavs = () => store.set("favs", JSON.stringify(favs));
-
-/* ------------------------------------------------------------------
-   STATE + ELEMENTS
------------------------------------------------------------------- */
-let hero = store.get("hero") || "BU";
-let current = null;   /* spot id */
-let siblings = [];    /* spots in the same group, for paging */
-
-const $ = id => document.getElementById(id);
-const felt=$("felt"), spots=$("spots"), stage=$("stage"), chart=$("chart"),
-      blank=$("blank"), title=$("title"), situation=$("situation"),
-      pager=$("pager"), count=$("count"), favBtn=$("fav");
-
-/* ------------------------------------------------------------------
-   TABLE
------------------------------------------------------------------- */
-POS.forEach(p => {
-  const b = document.createElement("button");
-  b.className="seat"; b.dataset.p=p; b.textContent=p;
-  b.setAttribute("aria-label", NAME[p]);
-  b.onclick = () => { hero=p; store.set("hero",p); renderSeats(); renderSpots(); };
-  felt.appendChild(b);
+/* flat index, so Previous/Next walks the section you opened from */
+const CHARTS = [];
+SECTIONS.forEach(s => {
+  s.start = CHARTS.length;
+  (s.flat   || []).forEach(it => CHARTS.push(it));
+  (s.groups || []).forEach(g => g.items.forEach(it => CHARTS.push(it)));
+  s.end = CHARTS.length;
 });
 
-function renderSeats(){
-  const cur = current ? SPOTS.find(s=>s.id===current) : null;
-  felt.querySelectorAll(".seat").forEach(b=>{
-    b.classList.toggle("on", b.dataset.p===hero);
-    b.classList.toggle("vs", !!cur && cur.vs===b.dataset.p);
-  });
-}
+/* ==================================================================
+   BUILD THE PAGE
+================================================================== */
+const cols = document.getElementById("cols");
+const colEl = [document.createElement("div"), document.createElement("div")];
+colEl.forEach(c => { c.className = "col"; cols.appendChild(c); });
 
-/* ------------------------------------------------------------------
-   SPOT LIST
------------------------------------------------------------------- */
-function renderSpots(){
-  spots.innerHTML="";
+SECTIONS.forEach(s => {
+  const sec = document.createElement("section");
+  sec.className = "sec";
 
-  if (favs.length){
-    const list = favs.map(id=>SPOTS.find(s=>s.id===id)).filter(Boolean);
-    if (list.length) spots.appendChild(group("Starred", list, true));
+  const btn = document.createElement("button");
+  btn.className = "secbtn";
+  btn.setAttribute("aria-expanded", "false");
+  btn.innerHTML = '<span class="arw">&#9654;</span><span>' + s.label + '</span>';
+  btn.onclick = () => {
+    const open = sec.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+  sec.appendChild(btn);
+
+  const panel = document.createElement("div");
+  panel.className = "panel";
+
+  if (s.flat){
+    const ul = document.createElement("ul");
+    ul.className = "flat";
+    s.flat.forEach(it => ul.appendChild(item(it, s)));
+    panel.appendChild(ul);
   }
-
-  let any=false;
-  GROUPS.forEach(g=>{
-    const list = SPOTS.filter(s=>s.hero===hero && s.kind===g.kind);
-    if(!list.length) return;
-    any=true;
-    spots.appendChild(group(g.label, list, g.kind==="open"));
+  (s.groups || []).forEach(g => {
+    const wrap = document.createElement("div");
+    wrap.className = "grp";
+    const h = document.createElement("p");
+    h.className = "grph";
+    h.textContent = g.head;
+    wrap.appendChild(h);
+    const ul = document.createElement("ul");
+    g.items.forEach(it => ul.appendChild(item(it, s)));
+    wrap.appendChild(ul);
+    panel.appendChild(wrap);
   });
 
-  if(!any){
-    const p=document.createElement("p");
-    p.className="empty";
-    p.textContent="No charts for this seat yet.";
-    spots.appendChild(p);
-  }
+  sec.appendChild(panel);
+  colEl[s.col].appendChild(sec);
+});
+
+function item(it, sec){
+  const li = document.createElement("li");
+  const b = document.createElement("button");
+  b.textContent = it.label;
+  b.onclick = () => show(CHARTS.indexOf(it), sec);
+  li.appendChild(b);
+  return li;
 }
 
-function group(label, list, wide){
-  const frag=document.createDocumentFragment();
-  const h=document.createElement("div"); h.className="grouptitle"; h.textContent=label;
-  frag.appendChild(h);
-  const row=document.createElement("div"); row.className="chips";
-  list.forEach(s=>{
-    const b=document.createElement("button");
-    b.className="chip"+(wide?" wide":"")+(s.id===current?" on":"");
-    b.textContent = label==="Starred" ? shortLabel(s) : (s.vs || "Open first in");
-    b.onclick = () => open(s.id, list);
-    row.appendChild(b);
-  });
-  frag.appendChild(row);
-  return frag;
+/* ==================================================================
+   LIGHTBOX
+================================================================== */
+const lb      = document.getElementById("lb"),
+      lbimg   = document.getElementById("lbimg"),
+      lbtitle = document.getElementById("lbtitle"),
+      lbidx   = document.getElementById("lbidx"),
+      lberr   = document.getElementById("lberr"),
+      lbprev  = document.getElementById("lbprev"),
+      lbnext  = document.getElementById("lbnext");
+
+let idx = -1, range = [0, 0];
+
+function show(i, sec){
+  if (i < 0) return;
+  if (sec) range = [sec.start, sec.end];
+  idx = i;
+  const it = CHARTS[i];
+
+  lbtitle.textContent = it.title;
+  lbidx.textContent   = (i - range[0] + 1) + " / " + (range[1] - range[0]);
+  lberr.hidden = true;
+  lbimg.hidden = false;
+  lbimg.classList.add("load");
+  lbimg.alt = it.title;
+  lbimg.dataset.retry = "0";
+  lbimg.src = "./" + it.file;
+
+  lbprev.disabled = i <= range[0];
+  lbnext.disabled = i >= range[1] - 1;
+
+  lb.classList.add("on");
+  document.body.style.overflow = "hidden";
+  preload(i);
 }
 
-function shortLabel(s){
-  if(s.kind==="open") return s.hero+" open";
-  if(s.kind==="vsopen") return s.hero+" vs "+s.vs;
-  if(s.kind==="3bet")   return s.hero+" vs "+s.vs+" 3B";
-  return s.hero+" vs "+s.vs+" 4B";
-}
-
-/* ------------------------------------------------------------------
-   CHART
------------------------------------------------------------------- */
-function open(id, list){
-  const s = SPOTS.find(x=>x.id===id);
-  if(!s) return;
-  current = id;
-  siblings = list && list.length ? list : SPOTS.filter(x=>x.hero===s.hero && x.kind===s.kind);
-  if(s.hero!==hero){ hero=s.hero; store.set("hero",hero); }
-
-  title.textContent = s.title;
-  situation.textContent = s.situation;
-
-  blank.hidden = true;
-  chart.hidden = false;
-  chart.classList.add("load");
-  chart.alt = s.title;
-  chart.dataset.retry = "0";
-  chart.src = "./"+s.file;
-
-  favBtn.hidden = false;
-  favBtn.classList.toggle("on", favs.includes(id));
-  favBtn.innerHTML = favs.includes(id) ? "&#9733;" : "&#9734;";
-
-  const i = siblings.findIndex(x=>x.id===id);
-  pager.hidden = siblings.length<2;
-  count.textContent = siblings.length>1 ? (i+1)+" / "+siblings.length : "";
-  $("prev").disabled = i<=0;
-  $("next").disabled = i>=siblings.length-1;
-
-  stage.classList.add("open");
-  renderSeats(); renderSpots(); preload(i);
-}
-
-chart.onload = () => chart.classList.remove("load");
-chart.onerror = () => {
-  /* relative path fails in preview / before deploy — fall back to the repo */
-  if(chart.dataset.retry==="0"){
-    chart.dataset.retry="1";
-    const s=SPOTS.find(x=>x.id===current);
-    if(s) chart.src = REMOTE + s.file;
+lbimg.onload = () => lbimg.classList.remove("load");
+lbimg.onerror = () => {
+  /* relative path fails before deploy — fall back to the repo */
+  if (lbimg.dataset.retry === "0"){
+    lbimg.dataset.retry = "1";
+    lbimg.src = REMOTE + CHARTS[idx].file;
   } else {
-    chart.classList.remove("load");
-    situation.textContent = "Couldn't load "+(SPOTS.find(x=>x.id===current)||{}).file+" — check the filename in the repo.";
+    lbimg.classList.remove("load");
+    lbimg.hidden = true;
+    lberr.hidden = false;
+    lberr.textContent = "Couldn't load " + CHARTS[idx].file +
+      ". Check that the file is in the repo under exactly that name.";
   }
 };
 
 function preload(i){
-  [siblings[i-1], siblings[i+1]].forEach(s=>{
-    if(!s) return;
-    const im=new Image();
-    im.onerror=()=>{ im.src=REMOTE+s.file; im.onerror=null; };
-    im.src="./"+s.file;
+  [-1, 1].forEach(d => {
+    const j = i + d, it = CHARTS[j];
+    if (!it || j < range[0] || j >= range[1]) return;
+    const im = new Image();
+    im.onerror = () => { im.onerror = null; im.src = REMOTE + it.file; };
+    im.src = "./" + it.file;
   });
 }
 
-function step(d){
-  const i = siblings.findIndex(x=>x.id===current);
-  const n = siblings[i+d];
-  if(n) open(n.id, siblings);
-}
-$("prev").onclick = ()=>step(-1);
-$("next").onclick = ()=>step(1);
-$("back").onclick = ()=>stage.classList.remove("open");
+const step = d => { const n = idx + d; if (n >= range[0] && n < range[1]) show(n); };
+lbprev.onclick = () => step(-1);
+lbnext.onclick = () => step(1);
 
-favBtn.onclick = () => {
-  if(!current) return;
-  const i = favs.indexOf(current);
-  if(i>=0) favs.splice(i,1); else favs.push(current);
-  saveFavs();
-  favBtn.classList.toggle("on", i<0);
-  favBtn.innerHTML = i<0 ? "&#9733;" : "&#9734;";
-  renderSpots();
-};
+function close(){
+  lb.classList.remove("on");
+  document.body.style.overflow = "";
+}
+document.getElementById("lbclose").onclick = close;
+lb.addEventListener("click", e => { if (e.target === lb) close(); });
 
 document.addEventListener("keydown", e => {
-  if(e.key==="ArrowLeft") step(-1);
-  if(e.key==="ArrowRight") step(1);
-  if(e.key==="Escape") stage.classList.remove("open");
+  if (!lb.classList.contains("on")) return;
+  if (e.key === "Escape")     close();
+  if (e.key === "ArrowLeft")  step(-1);
+  if (e.key === "ArrowRight") step(1);
 });
 
-/* swipe between sibling spots */
-let sx=0, sy=0, tracking=false;
-const box=$("chartbox");
-box.addEventListener("touchstart", e=>{
-  if(e.touches.length!==1){ tracking=false; return; }
-  tracking=true; sx=e.touches[0].clientX; sy=e.touches[0].clientY;
-},{passive:true});
-box.addEventListener("touchend", e=>{
-  if(!tracking) return;
-  tracking=false;
-  const t=e.changedTouches[0];
-  const dx=t.clientX-sx, dy=t.clientY-sy;
-  if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)*1.6) step(dx<0?1:-1);
-},{passive:true});
+/* swipe between charts */
+let sx = 0, sy = 0, track = false;
+lb.addEventListener("touchstart", e => {
+  if (e.touches.length !== 1){ track = false; return; }
+  track = true; sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+}, {passive:true});
+lb.addEventListener("touchend", e => {
+  if (!track) return;
+  track = false;
+  const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6) step(dx < 0 ? 1 : -1);
+}, {passive:true});
 
-/* ------------------------------------------------------------------
+/* ==================================================================
    OFFLINE
------------------------------------------------------------------- */
-if("serviceWorker" in navigator){
-  window.addEventListener("load", ()=>{
-    navigator.serviceWorker.register("./sw.js").catch(()=>{});
-  });
+================================================================== */
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 }
-const dl=$("dl");
+const dl = document.getElementById("dl");
 dl.onclick = async () => {
-  if(!("caches" in window)){ dl.textContent="Offline not supported here"; return; }
-  dl.disabled=true;
-  try{
+  if (!("caches" in window)){ dl.textContent = "Offline storage isn't available in this browser"; return; }
+  dl.disabled = true;
+  try {
     const c = await caches.open("charts-v1");
-    let done=0;
-    for(const s of SPOTS){
-      try{ await c.add("./"+s.file); }catch(e){}
-      done++;
-      dl.textContent = "Saving \u2026 "+done+" / "+SPOTS.length;
+    let done = 0;
+    for (const it of CHARTS){
+      try { await c.add("./" + it.file); } catch(e){}
+      dl.textContent = "Saving \u2026 " + (++done) + " / " + CHARTS.length;
     }
-    dl.textContent = "Saved \u2014 works without signal";
-  }catch(e){
-    dl.textContent = "Couldn't save. Try again.";
-    dl.disabled=false;
+    dl.textContent = "Saved \u2014 the charts now work without signal";
+  } catch(e){
+    dl.textContent = "Couldn't save. Tap to try again.";
+    dl.disabled = false;
   }
 };
-
-/* ------------------------------------------------------------------
-   GO
------------------------------------------------------------------- */
-renderSeats();
-renderSpots();
 </script>
 </body>
 </html>
